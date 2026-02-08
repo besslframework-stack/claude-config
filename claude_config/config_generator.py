@@ -6,8 +6,9 @@ CLAUDE.md 설정 생성기
 from pathlib import Path
 from datetime import datetime
 from typing import Optional
-from log_analyzer import LogAnalyzer
-from pattern_extractor import PatternExtractor
+
+from claude_config.log_analyzer import LogAnalyzer
+from claude_config.pattern_extractor import PatternExtractor
 
 
 class ConfigGenerator:

@@ -8,6 +8,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional
 from dataclasses import dataclass
+from collections import Counter
 
 
 @dataclass
@@ -131,7 +132,6 @@ class ClaudeMdUpdater:
         workflows = patterns.get("workflows", [])
         if workflows:
             # 자주 나타나는 도구 시퀀스 찾기
-            from collections import Counter
             sequences = []
             for wf in workflows:
                 seq = wf.get("sequence", [])
@@ -206,8 +206,8 @@ class ClaudeMdUpdater:
 
 
 if __name__ == "__main__":
-    from log_analyzer import LogAnalyzer
-    from pattern_extractor import PatternExtractor
+    from claude_config.log_analyzer import LogAnalyzer
+    from claude_config.pattern_extractor import PatternExtractor
 
     # 대화 로그 분석
     analyzer = LogAnalyzer()
@@ -218,7 +218,7 @@ if __name__ == "__main__":
     patterns = extractor.analyze(conversations)
 
     # CLAUDE.md 업데이트 제안
-    updater = ClaudeMdUpdater("/Users/jae-seongjeong/Desktop/bessl.co/CLAUDE.md")
+    updater = ClaudeMdUpdater()
 
     # 리포트 생성
     report = updater.get_update_report(patterns)

@@ -7,7 +7,8 @@ import re
 from collections import Counter
 from dataclasses import dataclass
 from typing import Optional
-from log_analyzer import Conversation, Message
+
+from claude_config.log_analyzer import Conversation, Message
 
 
 @dataclass
@@ -231,7 +232,7 @@ class PatternExtractor:
 
 
 if __name__ == "__main__":
-    from log_analyzer import LogAnalyzer
+    from claude_config.log_analyzer import LogAnalyzer
 
     analyzer = LogAnalyzer()
     conversations = analyzer.get_recent_conversations(limit=20)

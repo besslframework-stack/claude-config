@@ -10,10 +10,10 @@ import sys
 from pathlib import Path
 from datetime import datetime
 
-from log_analyzer import LogAnalyzer
-from pattern_extractor import PatternExtractor
-from claude_md_updater import ClaudeMdUpdater
-from config_generator import ConfigGenerator
+from claude_config.log_analyzer import LogAnalyzer
+from claude_config.pattern_extractor import PatternExtractor
+from claude_config.claude_md_updater import ClaudeMdUpdater
+from claude_config.config_generator import ConfigGenerator
 
 VERSION = "0.1.0"
 

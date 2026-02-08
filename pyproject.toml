@@ -28,6 +28,15 @@ classifiers = [
 requires-python = ">=3.10"
 dependencies = []
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "black>=23.0",
+    "isort>=5.12",
+    "mypy>=1.0",
+]
+
 [project.urls]
 Homepage = "https://github.com/bessl-co/claude-config"
 Documentation = "https://github.com/bessl-co/claude-config#readme"
@@ -39,6 +48,34 @@ claude-config = "claude_config.main:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
+include = ["claude_config*"]
 
-[tool.setuptools.package-dir]
-claude_config = "src"
+[tool.black]
+line-length = 100
+target-version = ['py310', 'py311', 'py312']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.mypy_cache
+  | \.pytest_cache
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --cov=claude_config --cov-report=term-missing"
