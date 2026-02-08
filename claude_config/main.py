@@ -14,8 +14,10 @@ from claude_config.log_analyzer import LogAnalyzer
 from claude_config.pattern_extractor import PatternExtractor
 from claude_config.claude_md_updater import ClaudeMdUpdater
 from claude_config.config_generator import ConfigGenerator
+from claude_config.hooks_manager import HooksManager, HOOK_TEMPLATES
+from claude_config.handoff_generator import HandoffGenerator
 
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 
 
 def init_command(args):
@@ -117,6 +119,175 @@ def doc_command(args):
     print("https://github.com/besslframework-stack/claude-config 에서 업데이트를 확인하세요.")
 
 
+def hooks_command(args):
+    """Hooks 관리"""
+    manager = HooksManager()
+
+    if args.hooks_action == "init":
+        if manager.init_hooks():
+            print("✓ .claude/settings.json에 hooks 섹션이 초기화되었습니다.")
+
+            # 추천 훅 표시
+            suggestions = manager.suggest_hooks()
+            if suggestions:
+                print("\n추천 훅:")
+                for name in suggestions:
+                    template = HOOK_TEMPLATES[name]
+                    print(f"  - {name}: {template.description}")
+                print(f"\n추가하려면: claude-config hooks add <name>")
+        else:
+            print("hooks 섹션이 이미 존재합니다.")
+
+    elif args.hooks_action == "add":
+        if not args.name:
+            print("훅 이름을 지정하세요: claude-config hooks add <name>")
+            print("\n사용 가능한 훅:")
+            for name, hook in HOOK_TEMPLATES.items():
+                print(f"  {name}: {hook.description}")
+            return
+
+        if args.name in HOOK_TEMPLATES:
+            if manager.add_hook(args.name, args.type):
+                template = HOOK_TEMPLATES[args.name]
+                print(f"✓ '{args.name}' 훅이 추가되었습니다.")
+                print(f"  Matcher: {template.matcher}")
+                print(f"  Command: {template.command}")
+            else:
+                print(f"훅 추가 실패: {args.name}")
+        else:
+            # 커스텀 훅
+            if args.matcher and args.command:
+                if manager.add_custom_hook(args.matcher, args.command, args.type):
+                    print(f"✓ 커스텀 훅이 추가되었습니다.")
+                else:
+                    print("훅 추가 실패")
+            else:
+                print(f"'{args.name}'은 템플릿에 없습니다.")
+                print("커스텀 훅을 추가하려면: --matcher와 --command를 지정하세요.")
+
+    elif args.hooks_action == "remove":
+        if not args.matcher:
+            print("제거할 훅의 matcher를 지정하세요: claude-config hooks remove --matcher <matcher>")
+            return
+
+        if manager.remove_hook(args.matcher, args.type):
+            print(f"✓ '{args.matcher}' 훅이 제거되었습니다.")
+        else:
+            print(f"'{args.matcher}' 훅을 찾을 수 없습니다.")
+
+    elif args.hooks_action == "list":
+        hooks = manager.list_current_hooks()
+
+        if not hooks or (not hooks.get("preToolUse") and not hooks.get("postToolUse")):
+            print("설정된 훅이 없습니다.")
+            print("훅을 초기화하려면: claude-config hooks init")
+            return
+
+        print("=== 현재 설정된 Hooks ===\n")
+
+        for hook_type in ["preToolUse", "postToolUse"]:
+            type_hooks = hooks.get(hook_type, [])
+            if type_hooks:
+                print(f"[{hook_type}]")
+                for h in type_hooks:
+                    matcher = h.get("matcher", "unknown")
+                    hook_list = h.get("hooks", [])
+                    print(f"  Matcher: {matcher}")
+                    for hook in hook_list:
+                        print(f"    → {hook.get('command', hook.get('type', 'unknown'))}")
+                print()
+
+    elif args.hooks_action == "suggest":
+        suggestions = manager.suggest_hooks()
+
+        if not suggestions:
+            print("추천할 훅이 없습니다.")
+            return
+
+        print("=== 추천 Hooks ===\n")
+        print("프로젝트 구조를 기반으로 추천합니다:\n")
+
+        for name in suggestions:
+            template = HOOK_TEMPLATES[name]
+            print(f"  {name}")
+            print(f"    {template.description}")
+            print(f"    Matcher: {template.matcher}")
+            print()
+
+        print(f"추가하려면: claude-config hooks add <name>")
+
+    elif args.hooks_action == "templates":
+        print("=== 사용 가능한 Hook 템플릿 ===\n")
+
+        for name, hook in HOOK_TEMPLATES.items():
+            print(f"  {name}")
+            print(f"    {hook.description}")
+            print(f"    Matcher: {hook.matcher}")
+            print(f"    Command: {hook.command}")
+            print()
+
+    else:
+        print("사용법: claude-config hooks <init|add|remove|list|suggest|templates>")
+        print("\n서브커맨드:")
+        print("  init       - hooks 섹션 초기화")
+        print("  add        - 훅 추가")
+        print("  remove     - 훅 제거")
+        print("  list       - 현재 훅 목록")
+        print("  suggest    - 프로젝트에 맞는 훅 추천")
+        print("  templates  - 사용 가능한 템플릿 목록")
+
+
+def handoff_command(args):
+    """세션 인수인계 HANDOFF.md 생성"""
+    generator = HandoffGenerator()
+
+    if args.quick:
+        # 빠른 모드: 직접 노트 입력
+        if args.notes:
+            notes = args.notes
+        else:
+            print("현재 작업 상태를 입력하세요 (완료하려면 빈 줄 입력):")
+            lines = []
+            while True:
+                try:
+                    line = input()
+                    if not line:
+                        break
+                    lines.append(line)
+                except EOFError:
+                    break
+            notes = "\n".join(lines)
+
+        if notes:
+            output = generator.create_quick_handoff(notes)
+            print(f"✓ HANDOFF.md 생성 완료: {output}")
+        else:
+            print("내용이 없어 생성을 취소합니다.")
+        return
+
+    # 로그 분석 모드
+    session = args.session if hasattr(args, 'session') else "latest"
+
+    print(f"세션 분석 중... ({session})")
+
+    output = generator.create_handoff(
+        output_path=args.output,
+        session_id=session,
+        custom_notes=args.notes
+    )
+
+    if output:
+        print(f"✓ HANDOFF.md 생성 완료: {output}")
+        print("\n새 세션에서 이 파일을 사용하세요:")
+        print("  1. 새 Claude 세션 시작")
+        print("  2. HANDOFF.md 내용 붙여넣기")
+        print("  3. '이어서 작업해줘' 요청")
+    else:
+        print("세션을 찾을 수 없습니다.")
+        print("\n빠른 모드를 사용하세요:")
+        print("  claude-config handoff --quick")
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="claude-config",
@@ -159,6 +330,27 @@ def main():
     doc_parser = subparsers.add_parser("doc", help="세션 → 문서 자동 생성")
     doc_parser.add_argument("--session", "-s", default="latest", help="세션 ID 또는 'latest'")
 
+    # hooks 명령
+    hooks_parser = subparsers.add_parser("hooks", help="Hooks 관리")
+    hooks_parser.add_argument("hooks_action", nargs="?", default=None,
+                              choices=["init", "add", "remove", "list", "suggest", "templates"],
+                              help="hooks 서브커맨드")
+    hooks_parser.add_argument("name", nargs="?", help="훅 템플릿 이름")
+    hooks_parser.add_argument("--type", "-t", default="postToolUse",
+                              choices=["preToolUse", "postToolUse"],
+                              help="훅 타입 (기본: postToolUse)")
+    hooks_parser.add_argument("--matcher", "-m", help="커스텀 훅의 matcher")
+    hooks_parser.add_argument("--command", "-c", help="커스텀 훅의 command")
+
+    # handoff 명령
+    handoff_parser = subparsers.add_parser("handoff", help="세션 인수인계 HANDOFF.md 생성")
+    handoff_parser.add_argument("--session", "-s", default="latest",
+                                help="세션 ID 또는 'latest' (기본)")
+    handoff_parser.add_argument("--output", "-o", help="출력 경로 (기본: ./HANDOFF.md)")
+    handoff_parser.add_argument("--quick", "-q", action="store_true",
+                                help="빠른 모드 (로그 분석 없이)")
+    handoff_parser.add_argument("--notes", "-n", help="추가 메모")
+
     args = parser.parse_args()
 
     # claude-md 기본값 설정
@@ -184,6 +376,10 @@ def main():
         analyze_command(args)
     elif args.command == "doc":
         doc_command(args)
+    elif args.command == "hooks":
+        hooks_command(args)
+    elif args.command == "handoff":
+        handoff_command(args)
     else:
         parser.print_help()
 

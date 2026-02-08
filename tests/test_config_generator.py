@@ -70,9 +70,9 @@ class TestConfigGenerator:
 
         content = generator.generate_claude_md(answers, analysis)
 
-        assert "학습된 패턴" in content
-        assert "자주 하는 작업" in content
+        assert "로그 분석 결과" in content
         assert "파일 생성" in content
+        assert "주요 파일: .ts" in content
 
     def test_init_with_skip_questions(self, generator, tmp_path):
         """질문 스킵 초기화 테스트"""
@@ -85,7 +85,7 @@ class TestConfigGenerator:
         assert output.exists()
         content = output.read_text()
         assert "# CLAUDE.md" in content
-        assert "주요 기술 스택" in content
+        assert "기술 스택" in content
 
     def test_analyze_existing_logs_empty(self, generator):
         """로그 없을 때 분석 테스트"""
