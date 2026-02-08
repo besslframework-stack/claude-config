@@ -210,7 +210,7 @@ chore: 빌드/설정
 
 ## 관련 문서
 
-- [Claude Config](https://github.com/bessl-co/claude-config)
+- [Claude Config](https://github.com/besslframework-stack/claude-config)
 
 ---
 

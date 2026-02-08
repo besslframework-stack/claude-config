@@ -38,10 +38,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/bessl-co/claude-config"
-Documentation = "https://github.com/bessl-co/claude-config#readme"
-Repository = "https://github.com/bessl-co/claude-config"
-Issues = "https://github.com/bessl-co/claude-config/issues"
+Homepage = "https://github.com/besslframework-stack/claude-config"
+Documentation = "https://github.com/besslframework-stack/claude-config#readme"
+Repository = "https://github.com/besslframework-stack/claude-config"
+Issues = "https://github.com/besslframework-stack/claude-config/issues"
 
 [project.scripts]
 claude-config = "claude_config.main:main"

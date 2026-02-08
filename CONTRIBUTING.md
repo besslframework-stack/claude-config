@@ -7,7 +7,7 @@ Claude Config에 기여해 주셔서 감사합니다!
 ### 1. 저장소 클론
 
 ```bash
-git clone https://github.com/bessl-co/claude-config.git
+git clone https://github.com/besslframework-stack/claude-config.git
 cd claude-config
 ```
 
@@ -91,7 +91,7 @@ pytest tests/test_log_analyzer.py -v
 
 ## 이슈 보고
 
-버그를 발견하셨나요? [GitHub Issues](https://github.com/bessl-co/claude-config/issues)에서 보고해 주세요.
+버그를 발견하셨나요? [GitHub Issues](https://github.com/besslframework-stack/claude-config/issues)에서 보고해 주세요.
 
 이슈 작성 시 포함할 내용:
 - Python 버전

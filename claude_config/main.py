@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Claude Config - Claude Code를 나에게 맞게 튜닝하는 도구
-https://github.com/bessl-co/claude-config
+https://github.com/besslframework-stack/claude-config
 """
 
 import argparse
@@ -114,7 +114,7 @@ def analyze_command(args):
 def doc_command(args):
     """세션 → 문서 자동 생성 (Phase 2)"""
     print("문서 자동 생성 기능은 곧 출시됩니다.")
-    print("https://github.com/bessl-co/claude-config 에서 업데이트를 확인하세요.")
+    print("https://github.com/besslframework-stack/claude-config 에서 업데이트를 확인하세요.")
 
 
 def main():
@@ -129,7 +129,7 @@ def main():
   claude-config learn --apply           # 제안 바로 적용
   claude-config analyze                 # 상세 분석
 
-문서: https://github.com/bessl-co/claude-config
+문서: https://github.com/besslframework-stack/claude-config
         """
     )
 

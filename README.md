@@ -125,7 +125,7 @@ claude-config analyze
 이슈와 PR을 환영합니다!
 
 ```bash
-git clone https://github.com/bessl-co/claude-config
+git clone https://github.com/besslframework-stack/claude-config
 cd claude-config
 pip install -e .
 ```
