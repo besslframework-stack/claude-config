@@ -19,8 +19,8 @@ class TestConfigGenerator:
     def test_generate_claude_md_basic(self, generator):
         """기본 CLAUDE.md 생성 테스트"""
         answers = {
-            "role": "풀스택 개발자",
             "languages": ["TypeScript", "Python"],
+            "frameworks": [],
             "tone": "존댓말",
             "code_style": "밸런스",
             "extra_rules": None,
@@ -30,7 +30,6 @@ class TestConfigGenerator:
         content = generator.generate_claude_md(answers, analysis)
 
         assert "# CLAUDE.md" in content
-        assert "풀스택 개발자" in content
         assert "TypeScript" in content
         assert "Python" in content
         assert "존댓말" in content
@@ -38,8 +37,8 @@ class TestConfigGenerator:
     def test_generate_claude_md_with_extra_rules(self, generator):
         """추가 규칙 포함 CLAUDE.md 생성 테스트"""
         answers = {
-            "role": "백엔드 개발자",
             "languages": ["Python"],
+            "frameworks": ["FastAPI"],
             "tone": "영어",
             "code_style": "명확함",
             "extra_rules": "테스트 코드 항상 작성",
@@ -51,12 +50,13 @@ class TestConfigGenerator:
         assert "테스트 코드 항상 작성" in content
         assert "Respond in English" in content
         assert "명시적인 타입 선언" in content
+        assert "FastAPI" in content
 
     def test_generate_claude_md_with_analysis(self, generator):
         """분석 결과 포함 CLAUDE.md 생성 테스트"""
         answers = {
-            "role": "프론트엔드 개발자",
             "languages": ["TypeScript"],
+            "frameworks": ["React"],
             "tone": "반말",
             "code_style": "간결함",
             "extra_rules": None,
@@ -85,7 +85,7 @@ class TestConfigGenerator:
         assert output.exists()
         content = output.read_text()
         assert "# CLAUDE.md" in content
-        assert "풀스택 개발자" in content  # 기본값
+        assert "주요 기술 스택" in content
 
     def test_analyze_existing_logs_empty(self, generator):
         """로그 없을 때 분석 테스트"""
@@ -97,8 +97,8 @@ class TestConfigGenerator:
     def test_code_style_options(self, generator):
         """코드 스타일 옵션별 생성 테스트"""
         base_answers = {
-            "role": "개발자",
             "languages": ["Python"],
+            "frameworks": [],
             "tone": "존댓말",
             "extra_rules": None,
         }
